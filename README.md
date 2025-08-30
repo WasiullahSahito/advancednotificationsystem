@@ -214,6 +214,35 @@ Authorization: Basic YWRtaW46cGFzc3dvcmQ=
 }
 ```
 
+Example Requests
+Using cURL
+Send Email:
+
+bash
+curl -X POST http://localhost:5000/api/notify/email \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic YWRtaW46cGFzc3dvcmQ=" \
+  -d '{
+    "recipient": "test@example.com",
+    "subject": "Welcome Email",
+    "message": "Hello user, welcome to our service!"
+  }'
+Send SMS:
+
+bash
+curl -X POST http://localhost:5000/api/notify/sms \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic YWRtaW46cGFzc3dvcmQ=" \
+  -d '{
+    "recipient": "+1234567890",
+    "message": "Your verification code is 123456"
+  }'
+Get History:
+
+bash
+curl -X GET "http://localhost:5000/api/notify/history?page=1&limit=10&type=email" \
+  -H "Authorization: Basic YWRtaW46cGFzc3dvcmQ="
+
 ### Import Instructions
 
 1. Open Postman

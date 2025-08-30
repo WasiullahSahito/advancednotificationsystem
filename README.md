@@ -255,6 +255,177 @@ curl -X GET "http://localhost:5000/api/notify/history?page=1&limit=10&type=email
    - Add variable `auth` with value `Basic YWRtaW46cGFzc3dvcmQ=`
    - Select this environment from the dropdown in the top-right corner
 
+Email Notification Endpoint
+URL
+text
+POST http://localhost:5000/api/notify/email
+Headers
+text
+Content-Type: application/json
+Authorization: Basic YWRtaW46cGFzc3dvcmQ=
+Example JSON Payloads
+1. Basic Email Notification
+json
+{
+  "recipient": "user@example.com",
+  "subject": "Welcome to Our Service",
+  "message": "Hello there! Welcome to our notification service. We're excited to have you on board."
+}
+2. Email with Template
+json
+{
+  "recipient": "user@example.com",
+  "template": "welcome",
+  "variables": {
+    "name": "John Doe",
+    "username": "johndoe123"
+  }
+}
+3. Scheduled Email
+json
+{
+  "recipient": "user@example.com",
+  "subject": "Reminder: Meeting Tomorrow",
+  "message": "This is a reminder about our meeting scheduled for tomorrow at 10:00 AM.",
+  "scheduledAt": "2023-10-15T14:30:00Z"
+}
+4. Email with All Options
+json
+{
+  "recipient": "user@example.com",
+  "subject": "Order Confirmation #12345",
+  "message": "Thank you for your order. Your order #12345 has been confirmed and will be shipped soon.",
+  "template": "orderUpdate",
+  "variables": {
+    "name": "Jane Smith",
+    "orderId": "12345",
+    "status": "confirmed",
+    "deliveryDate": "October 20, 2023"
+  },
+  "scheduledAt": "2023-10-15T09:00:00Z"
+}
+SMS Notification Endpoint
+URL
+text
+POST http://localhost:5000/api/notify/sms
+Headers
+text
+Content-Type: application/json
+Authorization: Basic YWRtaW46cGFzc3dvcmQ=
+Example JSON Payloads
+1. Basic SMS Notification
+json
+{
+  "recipient": "+1234567890",
+  "message": "Your verification code is 987654. This code will expire in 10 minutes."
+}
+2. SMS with Template
+json
+{
+  "recipient": "+1234567890",
+  "template": "verification",
+  "variables": {
+    "code": "123456"
+  }
+}
+3. Scheduled SMS
+json
+{
+  "recipient": "+1234567890",
+  "message": "Reminder: Your appointment is tomorrow at 2:00 PM.",
+  "scheduledAt": "2023-10-15T08:00:00Z"
+}
+4. SMS with All Options
+json
+{
+  "recipient": "+1234567890",
+  "message": "Hello John, your order #67890 has been shipped. Expected delivery: October 18.",
+  "template": "orderUpdate",
+  "variables": {
+    "name": "John",
+    "orderId": "67890",
+    "status": "shipped",
+    "deliveryDate": "October 18, 2023"
+  },
+  "scheduledAt": "2023-10-15T10:30:00Z"
+}
+Batch Notification Endpoint
+URL
+text
+POST http://localhost:5000/api/notify/batch
+Headers
+text
+Content-Type: application/json
+Authorization: Basic YWRtaW46cGFzc3dvcmQ=
+Example JSON Payloads
+1. Batch Email Notifications
+json
+{
+  "type": "email",
+  "recipients": ["user1@example.com", "user2@example.com", "user3@example.com"],
+  "subject": "Important Announcement",
+  "message": "We have an important announcement for all our users. Please check your account for details."
+}
+2. Batch SMS Notifications
+json
+{
+  "type": "sms",
+  "recipients": ["+1234567890", "+0987654321", "+1112223333"],
+  "message": "Flash sale starting in 1 hour! Use code FLASH20 for 20% off."
+}
+Other Useful Endpoints
+Get Notification History
+text
+GET http://localhost:5000/api/notify/history?page=1&limit=10
+Get Available Templates
+text
+GET http://localhost:5000/api/notify/templates
+Health Check
+text
+GET http://localhost:5000/api/health
+Postman Collection Setup
+Create a new collection called "Notification System API"
+
+Add the environment variables:
+
+baseUrl = http://localhost:5000/api
+
+auth = Basic YWRtaW46cGFzc3dvcmQ=
+
+For each request, set the headers:
+
+Content-Type: application/json
+
+Authorization: {{auth}}
+
+Use the JSON payloads above in the request body
+
+Testing Tips
+Make sure your backend server is running on port 5000
+
+Verify your email and SMS credentials are correctly set in the environment variables
+
+For email testing, use a real email address you have access to
+
+For SMS testing, use a real phone number (with country code) if you have Twilio set up
+
+Check the server console for any error messages if requests fail
+
+Use the health check endpoint to verify the API is running properly
+
+Expected Responses
+Success Response
+json
+{
+  "message": "Email notification processed",
+  "notificationId": "650a1b2c3d4e5f6g7h8i9j0k",
+  "status": "sent"
+}
+Error Response
+json
+{
+  "error": "Please provide a valid email address"
+}
 
 ## Configuration
 

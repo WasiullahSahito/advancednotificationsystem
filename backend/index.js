@@ -2,9 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const cron = require('node-cron');
 require('dotenv').config();
 
 const notificationRoutes = require('./routes/notifications');
+const { processScheduledNotifications } = require('./utils/scheduler');
 
 const app = express();
 
@@ -27,6 +29,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
     .then(() => console.log('MongoDB connected successfully'))
     .catch(err => console.log('MongoDB connection error:', err));
+
+// Schedule job to process pending notifications every minute
+cron.schedule('* * * * *', () => {
+    console.log('Checking for scheduled notifications...');
+    processScheduledNotifications();
+});
 
 const PORT = process.env.PORT || 5000;
 

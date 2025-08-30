@@ -121,7 +121,7 @@ exports.getNotificationHistory = async (req, res) => {
         res.json({
             notifications,
             totalPages: Math.ceil(count / limit),
-            currentPage: page,
+            currentPage: parseInt(page),
             total: count
         });
     } catch (error) {
@@ -142,6 +142,92 @@ exports.getTemplates = async (req, res) => {
         });
     } catch (error) {
         console.error('Get templates error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Send batch notifications
+exports.sendBatchNotifications = async (req, res) => {
+    try {
+        const { type, recipients, subject, message, template, variables } = req.body;
+
+        if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+            return res.status(400).json({ error: 'Recipients array is required' });
+        }
+
+        const results = [];
+
+        for (const recipient of recipients) {
+            try {
+                let result;
+
+                if (type === 'email') {
+                    const notification = new Notification({
+                        type: 'email',
+                        recipient,
+                        subject,
+                        message,
+                        template,
+                        variables
+                    });
+
+                    await notification.save();
+
+                    if (template) {
+                        result = await sendTemplatedEmail(recipient, template, variables);
+                    } else {
+                        result = await sendEmail(recipient, subject, message, variables);
+                    }
+
+                    if (result.success) {
+                        notification.status = 'sent';
+                        notification.sentAt = new Date();
+                    } else {
+                        notification.status = 'failed';
+                        notification.error = result.error;
+                    }
+
+                    await notification.save();
+                    results.push({ recipient, status: 'success', notificationId: notification._id });
+                } else if (type === 'sms') {
+                    const notification = new Notification({
+                        type: 'sms',
+                        recipient,
+                        message,
+                        template,
+                        variables
+                    });
+
+                    await notification.save();
+
+                    if (template) {
+                        result = await sendTemplatedSMS(recipient, template, variables);
+                    } else {
+                        result = await sendSMS(recipient, message, variables);
+                    }
+
+                    if (result.success) {
+                        notification.status = 'sent';
+                        notification.sentAt = new Date();
+                    } else {
+                        notification.status = 'failed';
+                        notification.error = result.error;
+                    }
+
+                    await notification.save();
+                    results.push({ recipient, status: 'success', notificationId: notification._id });
+                }
+            } catch (error) {
+                results.push({ recipient, status: 'error', error: error.message });
+            }
+        }
+
+        res.json({
+            message: 'Batch notifications processed',
+            results
+        });
+    } catch (error) {
+        console.error('Batch notification error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
